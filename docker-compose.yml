@@ -1,5 +1,5 @@
-version: "3.8"
-
 services:
-  hello-world:
-    image: hello-world
+  app:
+    build: .
+    ports:
+      - "8000:8000"
