@@ -1,30 +1,30 @@
-# SPS GenAI Embedding API
+# APAN 5560 Generative AI FastAPI Project
 
-This project implements a FastAPI application with spaCy embedding functionality for Assignment 1.
+This project implements several model inference endpoints using FastAPI. It includes spaCy text embeddings and similarity, CIFAR10 image classification with a CNN, and MNIST-style image generation with a GAN.
 
-## Features
+## Features / Endpoints
 
 * `GET /`
-  Returns a basic API status message.
+  Returns a basic API status message and lists available endpoints.
 
 * `GET /embedding/{text}`
-  Returns vector information for the input text, including whether a vector exists, vector dimension, vector norm, and a preview of the first 10 embedding values.
+  Generates spaCy vector information for the input text, including vector availability, dimension, norm, and a short embedding preview.
 
 * `POST /similarity`
-  Compares two input texts using spaCy word vectors and returns a semantic similarity score.
+  Compares two input texts using spaCy word vectors and returns their semantic similarity score.
+
+* `POST /predict-image`
+  Accepts an uploaded image file and predicts its CIFAR10 class using the saved CNN classifier checkpoint.
+
+* `GET /generate-digit`
+  Loads the saved GAN generator checkpoint, samples random noise, generates one MNIST-style digit image, and returns it as PNG base64.
 
 ## Run Locally
 
-Install dependencies:
-
-```bash
-uv sync
-```
-
 Start the FastAPI server:
 
-```bash
-uv run uvicorn main:app --reload
+```powershell
+.venv\Scripts\python.exe -m uvicorn main:app --reload
 ```
 
 Open the API documentation:
@@ -47,42 +47,12 @@ Open the API documentation:
 http://127.0.0.1:8000/docs
 ```
 
-Stop and remove the container:
+## Training Scripts
 
-```bash
-docker compose down
-```
+* `train_cifar10.py` trains the CNN classifier for CIFAR10 image classification.
+* `train_mnist_gan.py` trains the GAN generator for MNIST-style digit generation.
 
-## Example Requests
-
-Embedding endpoint:
-
-```text
-GET /embedding/king
-```
-
-Example response includes:
-
-```json
-{
-  "text": "king",
-  "has_vector": true,
-  "vector_dimension": 300,
-  "vector_norm": 7.141745717143642,
-  "embedding_preview": [0.31542, -0.35068, 0.42923]
-}
-```
-
-Similarity endpoint request body:
-
-```json
-{
-  "text1": "king",
-  "text2": "queen"
-}
-```
-
-The similarity score for `king` and `queen` should be higher than unrelated words such as `king` and `banana`.
+Datasets are not committed to the repository. Saved model checkpoints are included so the API inference endpoints can run without retraining.
 
 ## Repository
 
