@@ -4,6 +4,7 @@ import torch
 from PIL import Image
 from torchvision import transforms
 from helper_lib.data_loader import CIFAR10_CLASSES
+from helper_lib.gan_generator import generate_digit_base64
 from helper_lib.model import get_model
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from pydantic import BaseModel
@@ -53,6 +54,8 @@ def read_root():
         "endpoints": {
             "embedding": "/embedding/{text}",
             "similarity": "/similarity",
+            "predict_image": "/predict-image",
+            "generate_digit": "/generate-digit",
             "docs": "/docs",
         },
     }
@@ -83,6 +86,8 @@ def get_similarity(request: SimilarityRequest):
         "text2_has_vector": bool(doc2.has_vector),
         "similarity": float(doc1.similarity(doc2)),
     }
+
+
 @app.post("/predict-image")
 async def predict_image(file: UploadFile = File(...)):
     """
@@ -115,3 +120,18 @@ async def predict_image(file: UploadFile = File(...)):
         "confidence": confidence,
         "device": device,
     }
+
+
+@app.get("/generate-digit")
+def generate_digit():
+    """
+    Generate one MNIST-style digit image using the saved GAN generator checkpoint.
+    """
+
+    try:
+        return generate_digit_base64(device=device)
+    except FileNotFoundError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail="GAN generator checkpoint not found. Run train_mnist_gan.py first.",
+        ) from exc
