@@ -1,0 +1,23 @@
+Assignment 4 Part 3 - PyTorch Gradient Exercises
+
+Question 6
+x.grad: tensor([7.])
+requires_grad=False -> y.requires_grad: False
+backward error: RuntimeError: element 0 of tensors does not require grad and does not have a grad_fn
+torch.tensor default requires_grad: False
+
+Question 7
+w without requires_grad -> w.grad: None
+x.grad with constant w: tensor([7.])
+x.grad with trainable w: tensor([7.])
+w.grad with requires_grad=True: tensor([4., 2.])
+
+Question 8 (y = 3*x)
+detached backward error: RuntimeError: element 0 of tensors does not require grad and does not have a grad_fn
+corrected z = y -> x.grad: tensor([6.])
+A detached z cannot propagate gradients back to the original x.
+
+Question 9
+first backward -> x.grad: tensor([2.])
+second backward without clearing -> x.grad: tensor([5.])
+after x.grad.zero_() and second backward -> x.grad: tensor([3.])

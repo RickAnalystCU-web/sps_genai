@@ -10,3 +10,6 @@ wheels/
 .venv
 .env
 data/
+
+# Full training console logs are retained locally but not committed.
+assignment4_outputs/*_training.log

@@ -18,6 +18,11 @@ CIFAR10_CLASSES = [
     "truck",
 ]
 
+# The Energy and Diffusion models use a separate transform from the Assignment 2
+# classifier. CIFAR-10 pixels in [0, 1] are mapped to approximately [-1, 1].
+CIFAR10_GENERATIVE_MEAN = (0.5, 0.5, 0.5)
+CIFAR10_GENERATIVE_STD = (0.5, 0.5, 0.5)
+
 
 def get_cifar10_loaders(
     data_dir: str = "data",
@@ -98,6 +103,51 @@ def get_cifar10_loaders(
     )
 
     return train_loader, val_loader, test_loader
+
+
+def get_cifar10_generative_loader(
+    data_dir: str = "data",
+    batch_size: int = 128,
+    num_workers: int = 2,
+    train: bool = True,
+    shuffle: bool | None = None,
+):
+    """Create a CIFAR-10 loader for Energy and Diffusion model training.
+
+    Unlike ``get_cifar10_loaders``, this loader keeps CIFAR-10 at its native
+    32x32 RGB resolution. Each channel is normalized with mean 0.5 and standard
+    deviation 0.5, mapping pixel values from [0, 1] to approximately [-1, 1].
+    The existing Assignment 2 classification transform is intentionally left
+    unchanged.
+    """
+
+    transform = transforms.Compose(
+        [
+            transforms.ToTensor(),
+            transforms.Normalize(
+                mean=CIFAR10_GENERATIVE_MEAN,
+                std=CIFAR10_GENERATIVE_STD,
+            ),
+        ]
+    )
+
+    dataset = datasets.CIFAR10(
+        root=Path(data_dir),
+        train=train,
+        download=True,
+        transform=transform,
+    )
+
+    if shuffle is None:
+        shuffle = train
+
+    return DataLoader(
+        dataset,
+        batch_size=batch_size,
+        shuffle=shuffle,
+        num_workers=num_workers,
+        pin_memory=torch.cuda.is_available(),
+    )
 
 
 if __name__ == "__main__":
